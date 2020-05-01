@@ -6,10 +6,10 @@ import android.os.SystemClock
 import net.rolodophone.core.*
 import kotlin.math.atan
 
-class Player(private val window: MainWindow) {
-    val w = w(40)
+class Player(override val window: MainWindow) : Object {
+    val w = w(20)
     val h = w * (30f/32f)
-    val dim = RectF(width/2 - w/2, height/2 - h/2, width/2 + w/2, height/2 + h/2)
+    override val dim = RectF(width/2 - w/2, height/2 - h/2, width/2 + w/2, height/2 + h/2)
 
     val allImgs = listOf(
         window.ctx.bitmaps.load(R.drawable.player0),
@@ -25,7 +25,7 @@ class Player(private val window: MainWindow) {
 
     var rotation = 0f
 
-    fun update() {
+    override fun update() {
         currentImgs = when {
             //running
             window.joystick.speed() > window.joystick.dim.width() -> allImgs
@@ -54,7 +54,9 @@ class Player(private val window: MainWindow) {
     }
 
 
-    fun draw() {
+    override fun draw() {
+        super.draw()
+
         canvas.save()
         canvas.rotate(rotation, dim.centerX(), dim.centerY())
         canvas.drawBitmap(currentImgs[imgNum], null, dim, bitmapPaint)
