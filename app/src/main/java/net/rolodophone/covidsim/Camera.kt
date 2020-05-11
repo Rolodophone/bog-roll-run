@@ -3,7 +3,7 @@ package net.rolodophone.covidsim
 import android.graphics.RectF
 import net.rolodophone.core.*
 
-class Camera(private val window: MainWindow) {
+class Camera(private val window: GameWindow) {
     val dim = RectF(0f, 0f, width, height)
 
     fun update() {

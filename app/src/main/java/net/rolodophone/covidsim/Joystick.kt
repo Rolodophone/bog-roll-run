@@ -7,7 +7,7 @@ import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class Joystick(private val window: MainWindow) : Seekable(RectF(w(5), height - w(105), w(105), height - w(5)), listOf()) {
+class Joystick(private val window: GameWindow) : Seekable(RectF(w(5), height - w(105), w(105), height - w(5)), listOf()) {
     override fun onSeek(x: Float, y: Float) {
 
         val distanceFromCenter = abs(sqrt((x - dim.centerX()).pow(2) + (y - dim.centerY()).pow(2)))

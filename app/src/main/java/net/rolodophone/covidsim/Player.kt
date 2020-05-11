@@ -6,10 +6,15 @@ import android.os.SystemClock
 import net.rolodophone.core.*
 import kotlin.math.atan
 
-class Player(override val window: MainWindow) : Object {
-    val w = w(20)
-    val h = w * (30f/32f)
-    override val dim = RectF(width/2 - w/2, height/2 - h/2, width/2 + w/2, height/2 + h/2)
+class Player(override val window: GameWindow) : Object {
+    override val dim: RectF
+        init {
+            val w = w(20)
+            val h = w * (30f/32f)
+            val left = window.tiles.getPosAtTile(79, 109).x
+            val top = window.tiles.getPosAtTile(79, 109).y
+            dim = RectF(left, top, left + w, top + h)
+        }
 
     val allImgs = listOf(
         window.ctx.bitmaps.load(R.drawable.player0),
@@ -26,6 +31,7 @@ class Player(override val window: MainWindow) : Object {
     var rotation = 0f
 
     override fun update() {
+        //change sprite list based on speed
         currentImgs = when {
             //running
             window.joystick.speed() > window.joystick.dim.width() -> allImgs
@@ -46,10 +52,14 @@ class Player(override val window: MainWindow) : Object {
         imgNum %= currentImgs.size
 
         //move
-        dim.offset(window.joystick.velocityX() / fps, window.joystick.velocityY() / fps)
+        val xOffset = window.joystick.velocityX() / fps
+        val yOffset = window.joystick.velocityY() / fps
+        if (window.tiles.getTileAt(dim.centerX() + xOffset, dim.centerY()) in window.tiles.walkableTiles) dim.offset(xOffset, 0f)
+        if (window.tiles.getTileAt(dim.centerX(), dim.centerY() + yOffset) in window.tiles.walkableTiles) dim.offset(0f, yOffset)
 
+        //rotate based on movement
         if (window.joystick.velocityX() != 0f) rotation = (atan(window.joystick.velocityY() / window.joystick.velocityX()).toDouble().toDegrees() + 90) % 180
-        // I add 90 degrees because it seems to need it. Something with how atan works I guess
+                // I add 90 degrees because it seems to need it. Something with how atan works I guess
         if (window.joystick.velocityX() < 0f) rotation += 180 // because atan only returns 0-180
     }
 

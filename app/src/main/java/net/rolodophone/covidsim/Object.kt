@@ -5,7 +5,7 @@ import androidx.annotation.CallSuper
 
 interface Object {
     val dim: RectF
-    val window: MainWindow
+    val window: GameWindow
 
     fun update()
 

@@ -4,10 +4,12 @@ import net.rolodophone.core.MainActivityCore
 import net.rolodophone.core.Window
 import net.rolodophone.core.canvas
 
-class MainWindow(ctx: MainActivityCore) : Window(ctx) {
+class GameWindow(ctx: MainActivityCore) : Window(ctx) {
     val joystick = Joystick(this)
+    val tiles = Tiles(this)
     val player = Player(this)
     val camera = Camera(this)
+    val debug = Debug(this)
 
     override val seekables = listOf(joystick)
 
@@ -15,18 +17,21 @@ class MainWindow(ctx: MainActivityCore) : Window(ctx) {
         camera.update()
         player.update()
         joystick.update()
+        debug.update()
     }
 
     override fun draw() {
-        canvas.drawRGB(255, 255, 255)
+        canvas.drawRGB(0, 0, 0)
 
         canvas.save()
         camera.applyShift()
 
+        tiles.draw()
         player.draw()
 
         canvas.restore()
 
         joystick.draw()
+        debug.draw()
     }
 }
