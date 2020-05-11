@@ -41,11 +41,11 @@ class Joystick(private val window: GameWindow) : Seekable(RectF(w(5), height - w
         super.draw()
 
         //draw circle
-        paint.color = Color.argb(50, 0, 0, 0)
+        paint.color = Color.argb(50, 200, 200, 200)
         canvas.drawCircle(dim.centerX(), dim.centerY(), dim.width() / 2f, paint)
 
         //draw actual stick
-        paint.color = Color.argb(150, 0, 0, 0)
+        paint.color = Color.argb(150, 200, 200, 200)
         canvas.drawCircle(stickX, stickY, dim.width() / 4f, paint)
     }
 }

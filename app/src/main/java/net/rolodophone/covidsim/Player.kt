@@ -30,6 +30,8 @@ class Player(override val window: GameWindow) : Object {
 
     var rotation = 0f
 
+    var holdingDoor = false
+
     override fun update() {
         //change sprite list based on speed
         currentImgs = when {
@@ -54,12 +56,22 @@ class Player(override val window: GameWindow) : Object {
         //move
         val xOffset = window.joystick.velocityX() / fps
         val yOffset = window.joystick.velocityY() / fps
-        if (window.tiles.getTileAt(dim.centerX() + xOffset, dim.centerY()) in window.tiles.walkableTiles) dim.offset(xOffset, 0f)
-        if (window.tiles.getTileAt(dim.centerX(), dim.centerY() + yOffset) in window.tiles.walkableTiles) dim.offset(0f, yOffset)
+        val newCenterX = dim.centerX() + xOffset
+        val newCenterY = dim.centerY() + yOffset
+        val newTile = window.tiles.getTileAt(newCenterX, newCenterY)
+
+        if (holdingDoor && newTile !in window.tiles.doorMap.values) { //close door when you move away
+            window.tiles.closeDoor(dim.centerX(), dim.centerY())
+            holdingDoor = false
+        }
+        if (window.tiles.tryOpenDoor(newCenterX, newCenterY)) holdingDoor = true
+
+        if (window.tiles.getTileAt(newCenterX, dim.centerY()) in window.tiles.walkableTiles) dim.offset(xOffset, 0f)
+        if (window.tiles.getTileAt(dim.centerX(), newCenterY) in window.tiles.walkableTiles) dim.offset(0f, yOffset)
 
         //rotate based on movement
         if (window.joystick.velocityX() != 0f) rotation = (atan(window.joystick.velocityY() / window.joystick.velocityX()).toDouble().toDegrees() + 90) % 180
-                // I add 90 degrees because it seems to need it. Something with how atan works I guess
+        // I add 90 degrees because it seems to need it. Something with how atan works I guess
         if (window.joystick.velocityX() < 0f) rotation += 180 // because atan only returns 0-180
     }
 

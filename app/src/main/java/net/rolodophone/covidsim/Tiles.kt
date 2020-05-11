@@ -82,28 +82,41 @@ class Tiles(private val window: GameWindow) {
 
     val walkableTiles = setOf<Byte>(1, 13, 15, 17, 19, 21, 23, 24, 25, 26, 27, 37, 39, 60, 62)
 
-    private val tileMap: List<List<Byte>>
+    val doorMap = mapOf<Byte, Byte>(
+        Pair(12, 13),
+        Pair(14, 15),
+        Pair(16, 17),
+        Pair(18, 19),
+        Pair(20, 21),
+        Pair(22, 23),
+        Pair(36, 37),
+        Pair(38, 39),
+        Pair(59, 60),
+        Pair(61, 62)
+    )
+
+    private val map: List<MutableList<Byte>>
     init {
-        val tmpTileMap = mutableListOf<List<Byte>>()
+        val tmpTileMap = mutableListOf<MutableList<Byte>>()
 
         val readerOutput = CSVReader(InputStreamReader(window.ctx.resources.openRawResource(R.raw.map))).readAll()
 
         readerOutput.forEach { line: Array<String> ->
 
             tmpTileMap.add(
-                List(line.size) { line[it].toByte() }
+                MutableList(line.size) { line[it].toByte() }
             )
 
         }
 
-        tileMap = tmpTileMap
+        map = tmpTileMap
     }
 
     private val currentTileDim = RectF(0f, 0f, tileWidth, tileWidth)
 
     fun draw() {
 
-        for (row in tileMap.withIndex()) {
+        for (row in map.withIndex()) {
             for (tile in row.value.withIndex()) {
 
                 val bitmap = bitmaps[tile.value.toInt()]
@@ -112,17 +125,63 @@ class Tiles(private val window: GameWindow) {
                 currentTileDim.offset(tileOffset, 0f)
             }
 
-            currentTileDim.offset(-tileMap[0].size * tileOffset, tileOffset)
+            currentTileDim.offset(-map[0].size * tileOffset, tileOffset)
         }
 
         currentTileDim.offsetTo(0f, 0f)
     }
 
-    fun getTileAt(x: Float, y: Float): Byte {
-        return tileMap[ floor(y / tileOffset).toInt() ][ floor(x / tileOffset).toInt() ]
+    
+    fun getTileAt(x: Float, y: Float): Byte? {
+        val index = getIndexAt(x, y) ?: return null
+        return map.getOrNull(index.first)?.getOrNull(index.second)
     }
 
+    
     fun getPosAtTile(tileX: Int, tileY: Int): PointF {
         return PointF(tileX * tileOffset, tileY * tileOffset)
+    }
+
+    
+    fun tryOpenDoor(x: Float, y: Float): Boolean {
+        val index = getIndexAt(x, y) ?: return false
+        val value = map[index.first][index.second]
+
+        if (value in doorMap) {
+
+            val openedDoor = doorMap[value]
+            if (openedDoor != null) {
+                map[index.first][index.second] = openedDoor
+            }
+
+            return true
+        }
+
+        return false
+    }
+
+
+    fun closeDoor(x: Float, y: Float): Boolean {
+        val index = getIndexAt(x, y) ?: return false
+        val doorId = map[index.first][index.second]
+
+        if (doorId in doorMap.values) {
+
+            val openedDoor = doorMap.entries.find { it.value == doorId }?.key
+            if (openedDoor != null) {
+                map[index.first][index.second] = openedDoor
+            }
+
+            return true
+        }
+
+        return false
+    }
+
+
+    private fun getIndexAt(x: Float, y: Float): Pair<Int, Int>? {
+        val yIndex = floor(y / tileOffset).toInt()
+        val xIndex = floor(x / tileOffset).toInt()
+        return if (yIndex in map.indices && xIndex in map[0].indices) Pair(yIndex, xIndex) else null
     }
 }

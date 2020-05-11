@@ -5,7 +5,7 @@ import net.rolodophone.core.*
 
 class Debug(private val window: GameWindow) {
     companion object {
-        const val showFPSGraph = true
+        const val showFPSGraph = false
         const val FPSGraphHeight = 4
 
         const val showFPSText = false
