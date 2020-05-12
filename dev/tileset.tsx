@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.2" tiledversion="1.3.4" name="tileset" tilewidth="32" tileheight="32" tilecount="66" columns="0">
+<tileset version="1.2" tiledversion="1.3.4" name="tileset" tilewidth="32" tileheight="32" tilecount="72" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <terraintypes>
   <terrain name="Garden" tile="24"/>
@@ -201,5 +201,23 @@
  </tile>
  <tile id="65" terrain="0,0,,0">
   <image width="32" height="32" source="../app/src/main/res/drawable-nodpi/fence_tr.png"/>
+ </tile>
+ <tile id="66">
+  <image width="32" height="30" source="../app/src/main/res/drawable-nodpi/cyan_person_0.png"/>
+ </tile>
+ <tile id="67">
+  <image width="32" height="30" source="../app/src/main/res/drawable-nodpi/dark_blue_person_0.png"/>
+ </tile>
+ <tile id="68">
+  <image width="32" height="30" source="../app/src/main/res/drawable-nodpi/green_person_0.png"/>
+ </tile>
+ <tile id="69">
+  <image width="32" height="30" source="../app/src/main/res/drawable-nodpi/pink_person_0.png"/>
+ </tile>
+ <tile id="70">
+  <image width="32" height="30" source="../app/src/main/res/drawable-nodpi/purple_person_0.png"/>
+ </tile>
+ <tile id="71">
+  <image width="32" height="30" source="../app/src/main/res/drawable-nodpi/red_person_0.png"/>
  </tile>
 </tileset>

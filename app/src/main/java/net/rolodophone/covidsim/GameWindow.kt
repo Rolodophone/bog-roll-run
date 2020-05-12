@@ -8,6 +8,7 @@ class GameWindow(ctx: MainActivityCore) : Window(ctx) {
     val joystick = Joystick(this)
     val tiles = Tiles(this)
     val player = Player(this)
+    val people = People(this)
     val camera = Camera(this)
     val debug = Debug(this)
 
@@ -16,6 +17,7 @@ class GameWindow(ctx: MainActivityCore) : Window(ctx) {
     override fun update() {
         camera.update()
         player.update()
+        people.update()
         joystick.update()
         debug.update()
     }
@@ -28,6 +30,7 @@ class GameWindow(ctx: MainActivityCore) : Window(ctx) {
 
         tiles.draw()
         player.draw()
+        people.draw()
 
         canvas.restore()
 

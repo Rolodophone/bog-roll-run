@@ -10,7 +10,7 @@ import java.io.InputStreamReader
 import kotlin.math.floor
 
 class Tiles(private val window: GameWindow) {
-    private val tileWidth = w(20).toInt().toFloat()
+    val tileWidth = w(20).toInt().toFloat()
     private val tileOffset = tileWidth - 1
 
     //first index is level number, second is the byte that represents the bitmap
@@ -77,10 +77,12 @@ class Tiles(private val window: GameWindow) {
         window.ctx.bitmaps.load(R.drawable.gate_hori),                     // 59
         window.ctx.bitmaps.load(R.drawable.gate_hori_open),                     // 60
         window.ctx.bitmaps.load(R.drawable.gate_vert),                     // 61
-        window.ctx.bitmaps.load(R.drawable.gate_vert_open)                     // 62
+        window.ctx.bitmaps.load(R.drawable.gate_vert_open),                     // 62
+        window.ctx.bitmaps.load(R.drawable.gate_hori),                     // 63  (locked)
+        window.ctx.bitmaps.load(R.drawable.gate_vert)                     // 64  (locked)
     )
 
-    val walkableTiles = setOf<Byte>(1, 13, 15, 17, 19, 21, 23, 24, 25, 26, 27, 37, 39, 60, 62)
+    val walkableTiles = setOf<Byte>(1, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 36, 37, 38, 39, 59, 60, 61, 62)
 
     val doorMap = mapOf<Byte, Byte>(
         Pair(12, 13),
@@ -95,24 +97,15 @@ class Tiles(private val window: GameWindow) {
         Pair(61, 62)
     )
 
-    private val map: List<MutableList<Byte>>
-    init {
-        val tmpTileMap = mutableListOf<MutableList<Byte>>()
-
-        val readerOutput = CSVReader(InputStreamReader(window.ctx.resources.openRawResource(R.raw.map))).readAll()
-
-        readerOutput.forEach { line: Array<String> ->
-
-            tmpTileMap.add(
-                MutableList(line.size) { line[it].toByte() }
-            )
-
+    private val map: List<MutableList<Byte>> = CSVReader(InputStreamReader(window.ctx.resources.openRawResource(R.raw.map)))
+        .readAll()
+        .map {
+            it.map { it.toByte() }.toMutableList()
         }
 
-        map = tmpTileMap
-    }
 
     private val currentTileDim = RectF(0f, 0f, tileWidth, tileWidth)
+
 
     fun draw() {
 

@@ -53,21 +53,27 @@ class Player(override val window: GameWindow) : Object {
         //ensure imgNum is within the currentImgs length
         imgNum %= currentImgs.size
 
-        //move
-        val xOffset = window.joystick.velocityX() / fps
-        val yOffset = window.joystick.velocityY() / fps
+
+        //--move--
+        var xOffset = window.joystick.velocityX() / fps
+        if (window.tiles.getTileAt(dim.centerX() + xOffset, dim.centerY()) !in window.tiles.walkableTiles) xOffset = 0f
+        var yOffset = window.joystick.velocityY() / fps
+        if (window.tiles.getTileAt(dim.centerX(), dim.centerY() + yOffset) !in window.tiles.walkableTiles) yOffset = 0f
+
         val newCenterX = dim.centerX() + xOffset
         val newCenterY = dim.centerY() + yOffset
-        val newTile = window.tiles.getTileAt(newCenterX, newCenterY)
 
-        if (holdingDoor && newTile !in window.tiles.doorMap.values) { //close door when you move away
+        //close doors
+        if (holdingDoor && window.tiles.getTileAt(newCenterX, newCenterY) !in window.tiles.doorMap.values) {
             window.tiles.closeDoor(dim.centerX(), dim.centerY())
             holdingDoor = false
         }
+
+        //open doors
         if (window.tiles.tryOpenDoor(newCenterX, newCenterY)) holdingDoor = true
 
-        if (window.tiles.getTileAt(newCenterX, dim.centerY()) in window.tiles.walkableTiles) dim.offset(xOffset, 0f)
-        if (window.tiles.getTileAt(dim.centerX(), newCenterY) in window.tiles.walkableTiles) dim.offset(0f, yOffset)
+        dim.offset(xOffset, yOffset)
+
 
         //rotate based on movement
         if (window.joystick.velocityX() != 0f) rotation = (atan(window.joystick.velocityY() / window.joystick.velocityX()).toDouble().toDegrees() + 90) % 180
