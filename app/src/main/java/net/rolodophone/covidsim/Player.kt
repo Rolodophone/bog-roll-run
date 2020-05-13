@@ -36,7 +36,7 @@ class Player(override val window: GameWindow) : Object {
         //change sprite list based on speed
         currentImgs = when {
             //running
-            window.joystick.speed() > window.joystick.dim.width() -> allImgs
+            window.joystick.speed() > window.joystick.dim.width() * (3/4f) -> allImgs
             //walking
             window.joystick.speed() > 0f -> listOf(allImgs[0], allImgs[1], allImgs[3], allImgs[4])
             //stationary

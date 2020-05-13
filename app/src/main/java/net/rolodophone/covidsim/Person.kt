@@ -2,11 +2,12 @@ package net.rolodophone.covidsim
 
 import android.graphics.RectF
 import android.os.SystemClock
+import android.util.Log
 import net.rolodophone.core.*
 import kotlin.math.atan
 import kotlin.math.sqrt
 
-class Person(private val window: GameWindow, colour: Colour, speed: Float, startTileX: Int, startTileY: Int, endTileX: Int, endTileY: Int) {
+class Person(private val window: GameWindow, colour: Colour, val speed: Float, startTileX: Int, startTileY: Int, endTileX: Int, endTileY: Int) {
     enum class Colour {
         CYAN, DARK_BLUE, GREEN, PINK, PURPLE, RED
     }
@@ -28,35 +29,56 @@ class Person(private val window: GameWindow, colour: Colour, speed: Float, start
 
     private val xSpeed: Float
     private val ySpeed: Float
+    private var rotation: Float
+
     init {
         val pxSpeed = window.tiles.tileWidth * speed
         val xDistance = endTileX - startTileX
         val yDistance = endTileY - startTileY
         val distance = sqrt((xDistance * xDistance + yDistance * yDistance).toFloat())
         val speedFrac = pxSpeed / distance
+
         xSpeed = xDistance * speedFrac
         ySpeed = yDistance * speedFrac
+
+        rotation = if (xDistance == 0) { //prevents divide by 0 error
+            if (yDistance > 0) 180f else 0f
+        }
+        else {
+            (atan((yDistance / xDistance.toFloat()).toDouble()).toDegrees() + 90) % 180
+        }
+
+        if (xSpeed < 0) rotation += 180
+        assert(!rotation.isNaN()) { Log.e("Person", "Rotation is NaN; this Person will not be drawn") }
     }
 
-    private val imgs = when(colour) {
-        Colour.CYAN      -> listOf(R.drawable.cyan_person_0     , R.drawable.cyan_person_1     , R.drawable.cyan_person_2     , R.drawable.cyan_person_3)
-        Colour.DARK_BLUE -> listOf(R.drawable.dark_blue_person_0, R.drawable.dark_blue_person_1, R.drawable.dark_blue_person_2, R.drawable.dark_blue_person_3)
-        Colour.GREEN     -> listOf(R.drawable.green_person_0    , R.drawable.green_person_1    , R.drawable.green_person_2    , R.drawable.green_person_3)
-        Colour.PINK      -> listOf(R.drawable.pink_person_0     , R.drawable.pink_person_1     , R.drawable.pink_person_2     , R.drawable.pink_person_3)
-        Colour.PURPLE    -> listOf(R.drawable.purple_person_0   , R.drawable.purple_person_1   , R.drawable.purple_person_2   , R.drawable.purple_person_3)
-        Colour.RED       -> listOf(R.drawable.red_person_0      , R.drawable.red_person_1      , R.drawable.red_person_2      , R.drawable.red_person_3)
+    private val imgs = if (speed > 0f) { //keep the full walking animation
+        when (colour) {
+            Colour.CYAN -> listOf(R.drawable.cyan_person_0          , R.drawable.cyan_person_1     , R.drawable.cyan_person_2     , R.drawable.cyan_person_3)
+            Colour.DARK_BLUE -> listOf(R.drawable.dark_blue_person_0, R.drawable.dark_blue_person_1, R.drawable.dark_blue_person_2, R.drawable.dark_blue_person_3)
+            Colour.GREEN -> listOf(R.drawable.green_person_0        , R.drawable.green_person_1    , R.drawable.green_person_2    , R.drawable.green_person_3)
+            Colour.PINK -> listOf(R.drawable.pink_person_0          , R.drawable.pink_person_1     , R.drawable.pink_person_2     , R.drawable.pink_person_3)
+            Colour.PURPLE -> listOf(R.drawable.purple_person_0      , R.drawable.purple_person_1   , R.drawable.purple_person_2   , R.drawable.purple_person_3)
+            Colour.RED -> listOf(R.drawable.red_person_0            , R.drawable.red_person_1      , R.drawable.red_person_2      , R.drawable.red_person_3)
+        }
+    }
+    else { //keep only stationary part of the animation
+        when(colour) {
+            Colour.CYAN      -> listOf(R.drawable.cyan_person_0     , R.drawable.cyan_person_2)
+            Colour.DARK_BLUE -> listOf(R.drawable.dark_blue_person_0, R.drawable.dark_blue_person_2)
+            Colour.GREEN     -> listOf(R.drawable.green_person_0    , R.drawable.green_person_2)
+            Colour.PINK      -> listOf(R.drawable.pink_person_0     , R.drawable.pink_person_2)
+            Colour.PURPLE    -> listOf(R.drawable.purple_person_0   , R.drawable.purple_person_2)
+            Colour.RED       -> listOf(R.drawable.red_person_0      , R.drawable.red_person_2)
+        }
     }
         .map { window.ctx.bitmaps.load(it) }
+
     private var timeImgLastChanged = SystemClock.elapsedRealtime()
     private var imgNum = 0
 
     private var goingForward = true
     private var xRange: ClosedFloatingPointRange<Float> = if (startX < endX) startX..endX else endX..startX
-
-    private var rotation = (atan(ySpeed / xSpeed).toDouble().toDegrees() + 90) % 180
-    init {
-        if (xSpeed < 0) rotation += 180
-    }
 
 
     fun update() {
@@ -84,7 +106,7 @@ class Person(private val window: GameWindow, colour: Colour, speed: Float, start
         //animate sprite
         val currentTime = SystemClock.elapsedRealtime()
         if (currentTime - timeImgLastChanged > 200) {
-            imgNum = (imgNum + 1) % 4
+            imgNum = (imgNum + 1) % imgs.size
             timeImgLastChanged = currentTime
         }
     }
