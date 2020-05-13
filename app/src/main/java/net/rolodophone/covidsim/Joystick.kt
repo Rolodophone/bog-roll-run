@@ -33,9 +33,9 @@ class Joystick(private val window: GameWindow) : Seekable(RectF(w(5), height - w
     var stickX = dim.centerX()
     var stickY = dim.centerY()
 
-    fun velocityX() = (stickX - dim.centerX()) * 4
-    fun velocityY() = (stickY - dim.centerY()) * 4
-    fun speed() = abs(sqrt((stickX - dim.centerX()).pow(2) + (stickY - dim.centerY()).pow(2))) * 4
+    fun velocityX() = (stickX - dim.centerX()) * 3
+    fun velocityY() = (stickY - dim.centerY()) * 3
+    fun speed() = abs(sqrt((stickX - dim.centerX()).pow(2) + (stickY - dim.centerY()).pow(2))) * 3
 
     override fun draw() {
         super.draw()

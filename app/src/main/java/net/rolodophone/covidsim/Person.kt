@@ -6,18 +6,18 @@ import net.rolodophone.core.*
 import kotlin.math.atan
 import kotlin.math.sqrt
 
-class Person(private val window: GameWindow, colour: Colour, speed: Float, startX: Int, startY: Int, endX: Int, endY: Int) {
+class Person(private val window: GameWindow, colour: Colour, speed: Float, startTileX: Int, startTileY: Int, endTileX: Int, endTileY: Int) {
     enum class Colour {
         CYAN, DARK_BLUE, GREEN, PINK, PURPLE, RED
     }
 
-    private val w = w(20)
+    private val w = w(10)
     private val h = w * (30f/32f)
 
-    private val startX = window.tiles.getPosAtTile(startX, startY).x + window.tiles.tileWidth / 2
-    private val startY = window.tiles.getPosAtTile(startX, startY).y + window.tiles.tileWidth / 2
-    private val endX   = window.tiles.getPosAtTile(endX  , endY).x + window.tiles.tileWidth / 2
-    private val endY   = window.tiles.getPosAtTile(endX  , endY).y + window.tiles.tileWidth / 2
+    private val startX = window.tiles.getPosAtTile(startTileX, startTileY).x + window.tiles.tileWidth / 2
+    private val startY = window.tiles.getPosAtTile(startTileX, startTileY).y + window.tiles.tileWidth / 2
+    private val endX   = window.tiles.getPosAtTile(endTileX  , endTileY).x + window.tiles.tileWidth / 2
+    private val endY   = window.tiles.getPosAtTile(endTileX  , endTileY).y + window.tiles.tileWidth / 2
 
     var dim = RectF(
         this.startX - w/2,
@@ -30,8 +30,8 @@ class Person(private val window: GameWindow, colour: Colour, speed: Float, start
     private val ySpeed: Float
     init {
         val pxSpeed = window.tiles.tileWidth * speed
-        val xDistance = endX - startX
-        val yDistance = endY - startY
+        val xDistance = endTileX - startTileX
+        val yDistance = endTileY - startTileY
         val distance = sqrt((xDistance * xDistance + yDistance * yDistance).toFloat())
         val speedFrac = pxSpeed / distance
         xSpeed = xDistance * speedFrac
@@ -51,6 +51,7 @@ class Person(private val window: GameWindow, colour: Colour, speed: Float, start
     private var imgNum = 0
 
     private var goingForward = true
+    private var xRange: ClosedFloatingPointRange<Float> = if (startX < endX) startX..endX else endX..startX
 
     private var rotation = (atan(ySpeed / xSpeed).toDouble().toDegrees() + 90) % 180
     init {
@@ -60,10 +61,19 @@ class Person(private val window: GameWindow, colour: Colour, speed: Float, start
 
     fun update() {
         //turn back if reached the end
-        if (dim.centerX() + xSpeed / fps !in startX..endX) {
-            goingForward = !goingForward
-            rotation = (rotation + 180) % 360
+        if (goingForward) {
+            if (dim.centerX() + xSpeed / fps !in xRange) {
+                goingForward = false
+                rotation = (rotation + 180) % 360
+            }
         }
+        else {
+            if (dim.centerX() - xSpeed / fps !in xRange) {
+                goingForward = true
+                rotation = (rotation + 180) % 360
+            }
+        }
+
 
 
         //move

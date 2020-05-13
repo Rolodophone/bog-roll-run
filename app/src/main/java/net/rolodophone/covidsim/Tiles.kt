@@ -10,7 +10,7 @@ import java.io.InputStreamReader
 import kotlin.math.floor
 
 class Tiles(private val window: GameWindow) {
-    val tileWidth = w(20).toInt().toFloat()
+    val tileWidth = w(15).toInt().toFloat()
     private val tileOffset = tileWidth - 1
 
     //first index is level number, second is the byte that represents the bitmap

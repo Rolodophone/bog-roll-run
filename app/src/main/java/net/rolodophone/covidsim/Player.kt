@@ -9,7 +9,7 @@ import kotlin.math.atan
 class Player(override val window: GameWindow) : Object {
     override val dim: RectF
         init {
-            val w = w(20)
+            val w = w(10)
             val h = w * (30f/32f)
             val left = window.tiles.getPosAtTile(79, 109).x
             val top = window.tiles.getPosAtTile(79, 109).y

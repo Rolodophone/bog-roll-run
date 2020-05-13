@@ -15,11 +15,11 @@ class GameWindow(ctx: MainActivityCore) : Window(ctx) {
     override val seekables = listOf(joystick)
 
     override fun update() {
-        camera.update()
         player.update()
         people.update()
         joystick.update()
         debug.update()
+        camera.update()
     }
 
     override fun draw() {
