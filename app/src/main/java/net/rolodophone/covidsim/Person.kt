@@ -7,7 +7,7 @@ import net.rolodophone.core.*
 import kotlin.math.atan
 import kotlin.math.sqrt
 
-class Person(private val window: GameWindow, colour: Colour, val speed: Float, startTileX: Int, startTileY: Int, endTileX: Int, endTileY: Int) {
+class Person(override val window: GameWindow, colour: Colour, speed: Float, startTileX: Int, startTileY: Int, endTileX: Int, endTileY: Int): Object {
     enum class Colour {
         CYAN, DARK_BLUE, GREEN, PINK, PURPLE, RED
     }
@@ -15,12 +15,12 @@ class Person(private val window: GameWindow, colour: Colour, val speed: Float, s
     private val w = w(10)
     private val h = w * (30f/32f)
 
-    private val startX = window.tiles.getPosAtTile(startTileX, startTileY).x + window.tiles.tileWidth / 2
-    private val startY = window.tiles.getPosAtTile(startTileX, startTileY).y + window.tiles.tileWidth / 2
-    private val endX   = window.tiles.getPosAtTile(endTileX  , endTileY).x + window.tiles.tileWidth / 2
-    private val endY   = window.tiles.getPosAtTile(endTileX  , endTileY).y + window.tiles.tileWidth / 2
+    private val startX = window.tiles.getPosAtTile(startTileX + .5f, startTileY + .5f).x
+    private val startY = window.tiles.getPosAtTile(startTileX + .5f, startTileY + .5f).y
+    private val endX   = window.tiles.getPosAtTile(endTileX   + .5f, endTileY   + .5f).x
+    private val endY   = window.tiles.getPosAtTile(endTileX   + .5f, endTileY   + .5f).y
 
-    var dim = RectF(
+    override var dim = RectF(
         this.startX - w/2,
         this.startY - h/2,
         this.startX + w/2,
@@ -81,7 +81,7 @@ class Person(private val window: GameWindow, colour: Colour, val speed: Float, s
     private var xRange: ClosedFloatingPointRange<Float> = if (startX < endX) startX..endX else endX..startX
 
 
-    fun update() {
+    override fun update() {
         //turn back if reached the end
         if (goingForward) {
             if (dim.centerX() + xSpeed / fps !in xRange) {
@@ -111,7 +111,9 @@ class Person(private val window: GameWindow, colour: Colour, val speed: Float, s
         }
     }
 
-    fun draw() {
+    override fun draw() {
+        super.draw()
+
         canvas.save()
         canvas.rotate(rotation, dim.centerX(), dim.centerY())
         canvas.drawBitmap(imgs[imgNum], null, dim, bitmapPaint)

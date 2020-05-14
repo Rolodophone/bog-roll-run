@@ -11,6 +11,7 @@ class GameWindow(ctx: MainActivityCore) : Window(ctx) {
     val people = People(this)
     val camera = Camera(this)
     val debug = Debug(this)
+    val arrow = Arrow(this)
 
     override val seekables = listOf(joystick)
 
@@ -20,6 +21,7 @@ class GameWindow(ctx: MainActivityCore) : Window(ctx) {
         joystick.update()
         debug.update()
         camera.update()
+        arrow.update()
     }
 
     override fun draw() {
@@ -31,9 +33,11 @@ class GameWindow(ctx: MainActivityCore) : Window(ctx) {
         tiles.draw()
         player.draw()
         people.draw()
+        arrow.drawTarget()
 
         canvas.restore()
 
+        arrow.draw()
         joystick.draw()
         debug.draw()
     }

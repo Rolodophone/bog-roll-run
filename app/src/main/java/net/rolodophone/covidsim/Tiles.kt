@@ -131,7 +131,7 @@ class Tiles(private val window: GameWindow) {
     }
 
     
-    fun getPosAtTile(tileX: Int, tileY: Int): PointF {
+    fun getPosAtTile(tileX: Float, tileY: Float): PointF {
         return PointF(tileX * tileOffset, tileY * tileOffset)
     }
 
