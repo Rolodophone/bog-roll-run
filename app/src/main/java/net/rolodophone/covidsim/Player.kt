@@ -11,8 +11,8 @@ class Player(override val window: GameWindow) : Object {
         init {
             val w = w(10)
             val h = w * (30f/32f)
-            val left = window.tiles.getPosAtTile(72f, 28f).x
-            val top = window.tiles.getPosAtTile(72f, 28f).y
+            val left = window.tiles.getPosAtTile(78f, 110f).x
+            val top = window.tiles.getPosAtTile(78f, 110f).y
             dim = RectF(left, top, left + w, top + h)
         }
 
