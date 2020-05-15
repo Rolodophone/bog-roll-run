@@ -4,7 +4,10 @@ import android.graphics.Bitmap
 import android.graphics.RectF
 import android.os.SystemClock
 import net.rolodophone.core.*
+import kotlin.math.abs
 import kotlin.math.atan
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class Player(override val window: GameWindow) : Object {
     override val dim: RectF
@@ -31,6 +34,9 @@ class Player(override val window: GameWindow) : Object {
     var rotation = 0f
 
     var holdingDoor = false
+
+    private val warningDistance = 5 * window.tiles.tileWidth
+    private val deathDistance = 2 * window.tiles.tileWidth
 
     override fun update() {
         //change sprite list based on speed
@@ -79,6 +85,28 @@ class Player(override val window: GameWindow) : Object {
         if (window.joystick.velocityX() != 0f) rotation = (atan(window.joystick.velocityY() / window.joystick.velocityX()).toDouble().toDegrees() + 90) % 180
         // I add 90 degrees because it seems to need it. Something with how atan works I guess
         if (window.joystick.velocityX() < 0f) rotation += 180 // because atan only returns 0-180
+
+
+        //check if player is within a set distance of any player and if so how far
+        var minDistSq = Float.POSITIVE_INFINITY
+
+        for (person in window.people.people) {
+
+            //quick square check to see if it's worth a precise check
+            if ((abs(person.dim.left - this.dim.right) < warningDistance || abs(this.dim.left - person.dim.right) < warningDistance) &&
+                (abs(person.dim.top - this.dim.bottom) < warningDistance || abs(this.dim.top - person.dim.bottom) < warningDistance)) {
+
+                val newMinDistSq = abs((this.dim.centerX() - person.dim.centerX()).pow(2) + (this.dim.centerY() - person.dim.centerY()).pow(2)) // distance^2
+                if (newMinDistSq < minDistSq) minDistSq = newMinDistSq
+            }
+        }
+
+        val minDist = sqrt(minDistSq)
+        when {
+            minDist > warningDistance -> window.deathWarning.opacity = 0 // not in danger
+            minDist <= deathDistance -> die()  // dead
+            else -> window.deathWarning.opacity = (((warningDistance - deathDistance) - (minDist - deathDistance)) / (warningDistance - deathDistance) * 255).toInt()  // in danger but not dead
+        }
     }
 
 
@@ -89,5 +117,10 @@ class Player(override val window: GameWindow) : Object {
         canvas.rotate(rotation, dim.centerX(), dim.centerY())
         canvas.drawBitmap(currentImgs[imgNum], null, dim, bitmapPaint)
         canvas.restore()
+    }
+
+
+    private fun die() {
+
     }
 }

@@ -12,6 +12,7 @@ class GameWindow(ctx: MainActivityCore) : Window(ctx) {
     val camera = Camera(this)
     val debug = Debug(this)
     val arrow = Arrow(this)
+    val deathWarning = DeathWarning(this)
 
     override val seekables = listOf(joystick)
 
@@ -38,6 +39,7 @@ class GameWindow(ctx: MainActivityCore) : Window(ctx) {
         canvas.restore()
 
         arrow.draw()
+        deathWarning.draw()
         joystick.draw()
         debug.draw()
     }

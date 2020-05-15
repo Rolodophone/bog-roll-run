@@ -1,7 +1,7 @@
 package net.rolodophone.covidsim
 
 class People(window: GameWindow) {
-    private val people = listOf(
+    val people = listOf(
         Person(window, Person.Colour.PINK     , 4f  , 81 , 115, 97 , 116),
         Person(window, Person.Colour.GREEN    , 3f  , 87 , 110, 91 , 112),
         Person(window, Person.Colour.CYAN     , 1f  , 97 , 119, 98 , 123),
