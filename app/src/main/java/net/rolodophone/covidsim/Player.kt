@@ -107,6 +107,10 @@ class Player(override val window: GameWindow) : Object {
             minDist <= deathDistance -> die()  // dead
             else -> window.deathWarning.opacity = (((warningDistance - deathDistance) - (minDist - deathDistance)) / (warningDistance - deathDistance) * 255).toInt()  // in danger but not dead
         }
+
+
+        //check if player has reached toilet paper
+        if (sqrt((this.dim.centerX() - window.arrow.target.x).pow(2) + (this.dim.centerY() - window.arrow.target.y).pow(2)) < window.tiles.tileWidth) victory()
     }
 
 
@@ -121,6 +125,11 @@ class Player(override val window: GameWindow) : Object {
 
 
     private fun die() {
+        window.dead = true
+    }
 
+
+    private fun victory() {
+        window.victorious = true
     }
 }

@@ -1,10 +1,12 @@
 package net.rolodophone.covidsim
 
-import net.rolodophone.core.MainActivityCore
-import net.rolodophone.core.Window
-import net.rolodophone.core.canvas
+import android.graphics.RectF
+import net.rolodophone.core.*
 
 class GameWindow(ctx: MainActivityCore) : Window(ctx) {
+    var dead = false
+    var victorious = false
+
     val joystick = Joystick(this)
     val tiles = Tiles(this)
     val player = Player(this)
@@ -14,33 +16,61 @@ class GameWindow(ctx: MainActivityCore) : Window(ctx) {
     val arrow = Arrow(this)
     val deathWarning = DeathWarning(this)
 
+    val deathMessage = DeathMessage(this)
+    val victoryMessage = VictoryMessage(this)
+    val retryButton = Button(RectF(0f, 0f, width, height)) {
+        ctx.activeWindow = GameWindow(ctx)
+    }
+
     override val seekables = listOf(joystick)
+    override val upButtons = mutableListOf(retryButton)
 
     override fun update() {
-        player.update()
-        people.update()
-        joystick.update()
-        debug.update()
-        camera.update()
-        arrow.update()
+        when {
+            dead || victorious -> {
+                retryButton.update()
+            }
+            else -> {
+                player.update()
+                people.update()
+                joystick.update()
+                debug.update()
+                camera.update()
+                arrow.update()
+            }
+        }
     }
 
     override fun draw() {
         canvas.drawRGB(0, 0, 0)
 
-        canvas.save()
-        camera.applyShift()
+        when {
+            dead -> {
+                deathMessage.draw()
+                retryButton.draw()
+            }
 
-        tiles.draw()
-        player.draw()
-        people.draw()
-        arrow.drawTarget()
+            victorious -> {
+                victoryMessage.draw()
+                retryButton.draw()
+            }
 
-        canvas.restore()
+            else -> {
+                canvas.save()
+                camera.applyShift()
 
-        arrow.draw()
-        deathWarning.draw()
-        joystick.draw()
-        debug.draw()
+                tiles.draw()
+                player.draw()
+                people.draw()
+                arrow.drawTarget()
+
+                canvas.restore()
+
+                arrow.draw()
+                deathWarning.draw()
+                joystick.draw()
+                debug.draw()
+            }
+        }
     }
 }
