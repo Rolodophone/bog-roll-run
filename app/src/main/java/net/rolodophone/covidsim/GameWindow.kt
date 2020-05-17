@@ -1,11 +1,21 @@
 package net.rolodophone.covidsim
 
 import android.graphics.RectF
+import android.media.AudioManager
+import android.media.SoundPool
 import net.rolodophone.core.*
 
-class GameWindow(ctx: MainActivityCore) : Window(ctx) {
+class GameWindow(ctx: MainActivityCore, loadingWindow: LoadingWindow) : LoadableWindow(ctx, loadingWindow) {
     var dead = false
     var victorious = false
+
+    val soundPool = SoundPool(10, AudioManager.STREAM_MUSIC, 0)
+
+    init {
+        soundPool.setOnLoadCompleteListener { _, _, _ ->
+            loadingWindow.countDown()
+        }
+    }
 
     val joystick = Joystick(this)
     val tiles = Tiles(this)
@@ -19,7 +29,7 @@ class GameWindow(ctx: MainActivityCore) : Window(ctx) {
     val deathMessage = DeathMessage(this)
     val victoryMessage = VictoryMessage(this)
     val retryButton = Button(RectF(0f, 0f, width, height)) {
-        ctx.activeWindow = GameWindow(ctx)
+        ctx.activeWindow = GameLoadingWindow(ctx)
     }
 
     override val seekables = listOf(joystick)

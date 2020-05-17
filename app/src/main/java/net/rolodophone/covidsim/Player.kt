@@ -31,9 +31,27 @@ class Player(override val window: GameWindow) : Object {
     var imgNum = 0
     var timeImgLastChanged = SystemClock.elapsedRealtime()
 
+    private val walkWood       = window.soundPool.load(window.ctx, R.raw.walk_wood       , 1)
+    private val walkTiles      = window.soundPool.load(window.ctx, R.raw.walk_tiles      , 1)
+    private val walkPavement   = window.soundPool.load(window.ctx, R.raw.walk_pavement   , 1)
+    private val walkGrass      = window.soundPool.load(window.ctx, R.raw.walk_grass      , 1)
+    private val openDoor       = window.soundPool.load(window.ctx, R.raw.open_door       , 1)
+    private val closeDoor      = window.soundPool.load(window.ctx, R.raw.close_door      , 1)
+    private val openFrontDoor  = window.soundPool.load(window.ctx, R.raw.open_front_door , 1)
+    private val closeFrontDoor = window.soundPool.load(window.ctx, R.raw.close_front_door, 1)
+    private val openShopDoor   = window.soundPool.load(window.ctx, R.raw.open_shop_door  , 1)
+    private val closeShopDoor  = window.soundPool.load(window.ctx, R.raw.close_shop_door , 1)
+    private val openGate       = window.soundPool.load(window.ctx, R.raw.open_gate       , 1)
+    private val closeGate      = window.soundPool.load(window.ctx, R.raw.close_gate      , 1)
+
+    var currentSound = 0
+    var currentTileSound = walkWood
+    var moving = false
+
     var rotation = 0f
 
     var holdingDoor = false
+    var currentDoorSound = 0
 
     private val warningDistance = 5 * window.tiles.tileWidth
     private val deathDistance = 2 * window.tiles.tileWidth
@@ -66,17 +84,78 @@ class Player(override val window: GameWindow) : Object {
         var yOffset = window.joystick.velocityY() / fps
         if (window.tiles.getTileAt(dim.centerX(), dim.centerY() + yOffset) !in window.tiles.walkableTiles) yOffset = 0f
 
+        if (window.joystick.velocityX() != 0f || window.joystick.velocityY() != 0f) {
+            if (moving) {
+                val newCurrentTileSound = when (window.tiles.getTileAt(dim.centerX(), dim.centerY())) {
+                    in window.tiles.woodTiles -> walkWood
+                    in window.tiles.grassTiles -> walkGrass
+                    in window.tiles.pavementTiles -> walkPavement
+                    in window.tiles.tileTiles -> walkTiles
+                    else -> currentTileSound
+                }
+                if (newCurrentTileSound != currentTileSound) {
+                    window.soundPool.pause(currentSound)
+                    currentSound = window.soundPool.play(newCurrentTileSound, 1f, 1f, 1, -1, 1f)
+                    currentTileSound = newCurrentTileSound
+                }
+            }
+            else {
+                if (currentSound == 0) { //not initialised yet
+                    currentSound = window.soundPool.play(walkWood, 1f, 1f, 1, -1, 1f)
+                }
+                else { //resume same walking sound
+                    window.soundPool.resume(currentSound)
+                    moving = true
+                }
+            }
+        }
+        else { //stop walking sound
+             if (moving) {
+                 window.soundPool.pause(currentSound)
+                 moving = false
+             }
+        }
+
         val newCenterX = dim.centerX() + xOffset
         val newCenterY = dim.centerY() + yOffset
 
         //close doors
         if (holdingDoor && window.tiles.getTileAt(newCenterX, newCenterY) !in window.tiles.doorMap.values) {
-            window.tiles.closeDoor(dim.centerX(), dim.centerY())
-            holdingDoor = false
+            if (window.tiles.tryCloseDoor(dim.centerX(), dim.centerY())) {
+
+                window.soundPool.stop(currentDoorSound)
+                
+                window.soundPool.play(
+                    when (window.tiles.getTileAt(dim.centerX(), dim.centerY())) {
+                        in window.tiles.closeDoorTiles -> closeDoor
+                        in window.tiles.closeFrontDoorTiles -> closeFrontDoor
+                        in window.tiles.closeShopDoorTiles -> closeShopDoor
+                        in window.tiles.closeGateTiles -> closeGate
+                        else -> throw IllegalStateException("Can't close tile ID ${window.tiles.getTileAt(newCenterX, newCenterY)} like a door")
+                    },
+                    1f, 1f, 1, 0, 1f
+                )
+                
+                holdingDoor = false
+            }
         }
 
         //open doors
-        if (window.tiles.tryOpenDoor(newCenterX, newCenterY)) holdingDoor = true
+        if (window.tiles.tryOpenDoor(newCenterX, newCenterY)) {
+
+            currentDoorSound = window.soundPool.play(
+                when (window.tiles.getTileAt(newCenterX, newCenterY)) {
+                    in window.tiles.openDoorTiles -> openDoor
+                    in window.tiles.openFrontDoorTiles -> openFrontDoor
+                    in window.tiles.openShopDoorTiles -> openShopDoor
+                    in window.tiles.openGateTiles -> openGate
+                    else -> throw IllegalStateException("Can't open tile ID ${window.tiles.getTileAt(newCenterX, newCenterY)} like a door")
+                },
+                1f, 1f, 1, 0, 1f
+            )
+
+            holdingDoor = true
+        }
 
         dim.offset(xOffset, yOffset)
 
@@ -126,10 +205,12 @@ class Player(override val window: GameWindow) : Object {
 
     private fun die() {
         window.dead = true
+        window.soundPool.release()
     }
 
 
     private fun victory() {
         window.victorious = true
+        window.soundPool.release()
     }
 }

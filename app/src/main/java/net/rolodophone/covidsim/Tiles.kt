@@ -84,6 +84,19 @@ class Tiles(private val window: GameWindow) {
 
     val walkableTiles = setOf<Byte>(1, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 36, 37, 38, 39, 59, 60, 61, 62)
 
+    val woodTiles           = setOf<Byte>(1 , 12 , 13, 14 , 15)
+    val grassTiles          = setOf<Byte>(16, 17 , 18, 19 , 20 , 21, 22, 23, 24, 59, 60, 61, 62)
+    val pavementTiles       = setOf<Byte>(25, 26)
+    val tileTiles           = setOf<Byte>(27, 36 , 37, 38 , 39)
+    val openDoorTiles       = setOf<Byte>(13, 15)
+    val closeDoorTiles      = setOf<Byte>(12, 14)
+    val openFrontDoorTiles  = setOf<Byte>(17, 19 , 21, 23)
+    val closeFrontDoorTiles = setOf<Byte>(16, 18 , 20, 22)
+    val openShopDoorTiles   = setOf<Byte>(37, 39)
+    val closeShopDoorTiles  = setOf<Byte>(36, 38)
+    val openGateTiles       = setOf<Byte>(60, 62)
+    val closeGateTiles      = setOf<Byte>(59, 61)
+
     val doorMap = mapOf<Byte, Byte>(
         Pair(12, 13),
         Pair(14, 15),
@@ -154,7 +167,7 @@ class Tiles(private val window: GameWindow) {
     }
 
 
-    fun closeDoor(x: Float, y: Float): Boolean {
+    fun tryCloseDoor(x: Float, y: Float): Boolean {
         val index = getIndexAt(x, y) ?: return false
         val doorId = map[index.first][index.second]
 
